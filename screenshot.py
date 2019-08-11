@@ -16,7 +16,7 @@ def start():
         start()
 
 def checkURL(url):
-    if url.startswith('https://steamcommunity.com/id/' or 'https://steamcommunity.com/profiles/'):
+    if url.startswith(('https://steamcommunity.com/id/', 'https://steamcommunity.com/profiles/')):
         return 1
     else:
         print('The inserted value is not a valid Steam URL.')
