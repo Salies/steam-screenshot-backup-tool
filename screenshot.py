@@ -12,6 +12,10 @@ def start():
     if not uInput.endswith('/'):
         uInput = uInput + '/'
     if checkURL(uInput):
+        if(path.isfile('data.json')): #if there's a json from a previous run, clean it
+            hrefs = []
+            with open('data.json', 'w') as outfile:
+                json.dump(hrefs, outfile)
         pageGrab(uInput, 1)
     else:
         start()
@@ -69,7 +73,12 @@ def pageGrab(url, n, magicalNumber=1):
             for count, item in enumerate(hrefs, start=1):
                 print('Download screenshot: %d of %d' % (count, len(hrefs)))
                 screenshotPage = BeautifulSoup(get(item['href']).content, "html.parser")
-                folderName = '%s (%s)' % (screenshotPage.select_one('.screenshotAppName > a').getText(), screenshotPage.select_one('body > div.responsive_page_frame.with_header > div.responsive_page_content > div.responsive_page_template_content > div.apphub_HomeHeaderContent > div.apphub_HeaderTop > div.apphub_OtherSiteInfo.responsive_hidden > a')['data-appid'])
+                appId = screenshotPage.select_one('body > div.responsive_page_frame.with_header > div.responsive_page_content > div.responsive_page_template_content > div.apphub_HomeHeaderContent > div.apphub_HeaderTop > div.apphub_OtherSiteInfo.responsive_hidden > a')
+                if(appId is None):
+                    appId = ""
+                else:
+                    appId = appId['data-appid']
+                folderName = '%s (%s)' % (screenshotPage.select_one('.screenshotAppName').getText(), appId)
                 if any(character in folderName for character in r'/[<>:"\/\\|?*]+/g'):
                     folderName = sub(r'[<>:"\/\\|?*]+', '', folderName)
                 screenshotURL = screenshotPage.select_one('.actualmediactn > a')['href']
