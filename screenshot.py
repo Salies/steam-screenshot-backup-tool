@@ -31,6 +31,7 @@ def string_to_array(string):
     return asciiArray
 
 def set_desc(imgPath, message):
+    print(message)
     exif_dict = piexif.load(imgPath)
     exif_dict['0th'][40092] = string_to_array(message)
     exif_bytes = piexif.dump(exif_dict)
@@ -45,14 +46,17 @@ def pageGrab(url, n, magicalNumber=1):
         magicalNumber = int(page.select_one('a.pagingPageLink:nth-last-of-type(2)').getText())
     print('Analyzing page %d of %d' % (n, magicalNumber))
     for screenshot in page.select('a.profile_media_item.modalContentLink.ugc'):
-        hrefs.append(screenshot['href'])
+        desc = screenshot.find('q')
+        if(desc):
+            desc = desc.text
+        hrefs.append([screenshot['href'], desc])
     if(len(hrefs) == 0):
         print("ERROR: The screenshots page could not be reached. This is probably due to an invalid URL or to privacy settings. Please make sure that the URL is correct and that the inserted profile's screenshots are publicly available.")
         return 0
     if(n == magicalNumber):
-        for count, url in enumerate(hrefs, start=1):
+        for count, obj in enumerate(hrefs, start=1):
             print('Download screenshot: %d of %d' % (count, len(hrefs)))
-            screenshotPage = BeautifulSoup(get(url).content, "html.parser")
+            screenshotPage = BeautifulSoup(get(obj[0]).content, "html.parser")
             folderName = '%s (%s)' % (screenshotPage.select_one('.screenshotAppName > a').getText(), screenshotPage.select_one('body > div.responsive_page_frame.with_header > div.responsive_page_content > div.responsive_page_template_content > div.apphub_HomeHeaderContent > div.apphub_HeaderTop > div.apphub_OtherSiteInfo.responsive_hidden > a')['data-appid'])
             if any(character in folderName for character in r'/[<>:"\/\\|?*]+/g'):
                 folderName = sub(r'[<>:"\/\\|?*]+', '', folderName)
@@ -62,9 +66,9 @@ def pageGrab(url, n, magicalNumber=1):
                 makedirs(folderName)
             if not path.exists(fileDir):
                 urlretrieve(screenshotURL, fileDir)
-                screenshotDescription = screenshotPage.select_one('div.screenshotDescription')
+                screenshotDescription = obj[1]
                 if screenshotDescription is not None:
-                    set_desc(fileDir, screenshotDescription.getText())
+                    set_desc(fileDir, screenshotDescription)
         return 1
     else:
         return pageGrab(url, n + 1, magicalNumber)
