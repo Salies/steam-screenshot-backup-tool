@@ -1,0 +1,34 @@
+{
+  "name": "steam-screenshot-backup-tool",
+  "version": "2.0.0",
+  "description": "A backup tool for Steam screenshots.",
+  "main": "screenshot.js",
+  "scripts": {
+    "test": "node screenshot.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Salies/steam-screenshot-backup-tool.git"
+  },
+  "keywords": [
+    "steam",
+    "nodejs",
+    "steam",
+    "screenshots",
+    "steam",
+    "tools",
+    "steam",
+    "backup"
+  ],
+  "author": "Daniel Serezane",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/Salies/steam-screenshot-backup-tool/issues"
+  },
+  "homepage": "https://github.com/Salies/steam-screenshot-backup-tool#readme",
+  "dependencies": {
+    "node-fetch": "^2.6.0",
+    "piexifjs": "1.0.4",
+    "puppeteer": "^2.1.1"
+  }
+}
