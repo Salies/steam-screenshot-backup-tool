@@ -5,6 +5,8 @@ const fetch = require('node-fetch');
 const util = require('util');
 const streamPipeline = util.promisify(require('stream').pipeline)
 const path = require('path');
+const async = require("async");
+const sanitize = require("sanitize-filename");
 
 let browser, page, lastPage, hrefs;
 
@@ -14,9 +16,9 @@ function delay(time) {
     });
  }
 
-fs.writeFile('data.json', JSON.stringify([]), 'utf8', ()=>{
+/*fs.writeFile('data.json', JSON.stringify([]), 'utf8', ()=>{
     console.log('Rewrote data.json.');
-});
+});*/
 
 async function pageGrab(n){
     await delay(3000);
@@ -76,17 +78,59 @@ async function pageGrab(n){
     return hrefs;
 }
 
+async function procScreenshots(data){
+    //await getScreenshot(data[0]);
+    let l = data.length, i = 1;
+    await async.eachSeries(data, function(item, callback){
+        console.log(`Downloading screenshot ${i} of ${l}`)
+        getScreenshot(item).then(function(){
+            i++;
+            callback();
+        })
+    });
+}
+
 async function getScreenshot(obj){
-    await page.goto(obj.href);
-    const screenshotURL = await page.$eval('.actualmediactn a', e => e.href);
-    const gameName = await page.$eval('.screenshotAppName', e => e.innerHTML);
+    await delay(3000);
+    try{
+        await page.goto(obj.href);
+    }
+    catch{
+        getScreenshot(obj);
+    }
+    let screenshotURL, gameName, res;
+    try{
+        screenshotURL = await page.$eval('.actualmediactn a', e => e.href);
+        gameName = await page.$eval('.screenshotAppName a', e => e.innerHTML);
+    }
+    catch{
+        getScreenshot(obj);
+    }
+
     //from https://github.com/node-fetch/node-fetch/issues/375#issuecomment-495953540
-    const res = await fetch(screenshotURL);
-    if (!res.ok) throw new Error(`unexpected response ${res.statusText}`)
-    const fileName = screenshotURL.split("/")[5] + ".jpg";
-    const dir = gameName + `(${obj.appid})/${fileName}`;
-    console.log(dir);
-    await streamPipeline(res.body, fs.createWriteStream(dir))
+    try{
+        fetch(screenshotURL).then((res)=>{
+            const fileName = screenshotURL.split("/")[5] + ".jpg";
+            const dir = "screenshots/" + sanitize(gameName) + ` (${obj.appid})`;
+            const fullDir = dir + "/" + fileName;
+        
+            if (!fs.existsSync(dir)){ //synchronous so it happens before the pipe
+                fs.mkdirSync(dir, { recursive: true });
+            }
+        
+            streamPipeline(res.body, fs.createWriteStream(fullDir)).then(()=>{
+                console.log('Imagem salva')
+                if(obj.description){
+                    setDescription(fullDir, obj.description).then(()=>{
+                        return;
+                    })
+                }
+            })
+        })
+    }
+    catch{
+        getScreenshot(obj);
+    }
 }
 
 function toCharCode(input){
@@ -121,27 +165,25 @@ async function setDescription(fileDir, desc){
         }
         catch{
             //This is common, as the commentaries for an image are limited to a very narrow ammount of characters. Japanese letters, for example, are not supported.
-            return fs.writeFile(`${path.basename(fileDir, '.jpg')}.txt`, desc, function() {
+            return fs.writeFile(`${path.dirname(fileDir)}/${path.basename(fileDir, '.jpg')}.txt`, desc, function() {
                 if(err){throw err}
                 console.log("ERROR: Description couldn't be added to image as a commentary. The description was saved in a txt file. Check the tool's documentation for more information on the matter.");
             }); 
         }
 
-        fs.writeFile("file.jpg", newJpeg, function(err) {
+        fs.writeFile(fileDir, newJpeg, function(err) {
             if(err){throw err}
         });
     });
 }
 
 (async () => {
-    browser = await puppeteer.launch({headless: false});
-    page = await browser.newPage();
+    browser = await puppeteer.launch({headless:false});
+    page = await browser.newPage(); 
     //await pageGrab(1);
-    await getScreenshot({
-        "href": "https://steamcommunity.com/sharedfiles/filedetails/?id=1974207618",
-        "description": "Das erfolglose Tochterunternehmen von Musaber Industries",
-        "appid": "227300"
-    })
+    const j = await util.promisify(fs.readFile)('data.backup.json', 'utf8')
+    await procScreenshots(JSON.parse(j));
+
     //await setDescription('file.jpg', 'eae manito');
 
     await browser.close();
