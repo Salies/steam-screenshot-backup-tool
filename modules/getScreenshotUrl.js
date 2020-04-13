@@ -1,0 +1,51 @@
+const fs = require('fs');
+
+let d, p;
+
+async function writeScreenshotUrls(page){
+    await fs.readFile('data.json', 'utf8', function readFileCallback(err, data){
+        if(err) throw err;
+    
+        d = JSON.parse(data), p = page;
+        getScreenshotUrl(0);
+    });
+}
+
+async function getScreenshotUrl(n){
+    if(d[n].url){
+        console.log(`Screenshot ${n + 1} of ${d.length} already downloaded.`);
+        return getScreenshotUrl(n + 1);
+    };
+
+    console.log(`Downloading DATA FOR screenshot ${n + 1} of ${d.length}.`);
+
+    await p.goto(d[n].fileURL);
+    
+    const screenshot_a = await p.$('.actualmediactn a');
+    const screenshot_href = await p.evaluate(screenshot_a =>  screenshot_a.href, screenshot_a);
+
+    console.log(screenshot_href);
+
+    const gameName_el = await p.$('.screenshotAppName');
+    const gameName = await p.evaluate(gameName_el =>  gameName_el.textContent, gameName_el);
+
+    console.log(gameName);
+
+    let game_appid = "";
+    const gameAppID_el = await p.$('body > div.responsive_page_frame.with_header > div.responsive_page_content > div.responsive_page_template_content > div.apphub_HomeHeaderContent > div.apphub_HeaderTop > div.apphub_OtherSiteInfo.responsive_hidden > a');
+    if(gameAppID_el){
+        game_appid = await p.evaluate(gameAppID_el =>  gameAppID_el.getAttribute('data-appid'), gameAppID_el);
+        console.log(game_appid);
+    }
+
+    d[n] = {...d[n], url:screenshot_href, game:{name:gameName, appid:game_appid}};
+
+    fs.writeFile('data.json', JSON.stringify(d), () => {
+        console.log('Data written.');
+        if(n < d.length - 1){
+            return getScreenshotUrl(n + 1);
+        }
+    });
+}
+
+module.exports = writeScreenshotUrls;
