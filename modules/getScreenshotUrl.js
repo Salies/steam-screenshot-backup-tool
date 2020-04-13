@@ -7,7 +7,7 @@ async function writeScreenshotUrls(page){
         if(err) throw err;
     
         d = JSON.parse(data), p = page;
-        getScreenshotUrl(0);
+        getScreenshotUrl(9);
     });
 }
 
@@ -38,7 +38,17 @@ async function getScreenshotUrl(n){
         console.log(game_appid);
     }
 
-    d[n] = {...d[n], url:screenshot_href, game:{name:gameName, appid:game_appid}};
+    let screenshot_description = false;
+    const description_el = await p.$('#description');
+    if(description_el){
+        //alternative to remove the quotes
+        /*const s = await p.evaluate(description_el =>  description_el.textContent, description_el);
+        screenshot_description = s.substring(1, s.length-1);*/
+        
+        screenshot_description = await p.evaluate(description_el =>  description_el.textContent, description_el);
+    }
+
+    d[n] = {...d[n], url:screenshot_href, description:screenshot_description, game:{name:gameName, appid:game_appid}};
 
     fs.writeFile('data.json', JSON.stringify(d), () => {
         console.log('Data written.');
