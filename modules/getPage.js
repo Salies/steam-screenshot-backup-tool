@@ -1,14 +1,19 @@
 const fs = require('fs'), writeScreenshotUrls = require('./getScreenshotUrl');
 
-let nPages = 1, b = null;
+let nPages = 1, b = null, userURL = null;
 
-async function getPage(browser, page, n, tries=1){
+async function getPage(page, n, tries=1, browser = null, url = null){
     if(!b){
         b = browser;
     }
+
+    if(!userURL){
+        userURL = url;
+    }
+
     //example: invalid page 
     //let p = `https://steamcommunity.com/id/sonicsalies/screenshots/?appid=123&sort=newestfirst&browsefilter=myfiles&view=grid`;
-    let p = `https://steamcommunity.com/id/sonicsalies/screenshots/?appid=0&p=${n}&sort=oldestfirst&browsefilter=myfiles&view=grid`;
+    let p = `${userURL}/screenshots/?appid=0&p=${n}&sort=oldestfirst&browsefilter=myfiles&view=grid`;
     await page.goto(p);
 
     const notfound = await page.$('#NoItemsContainer');

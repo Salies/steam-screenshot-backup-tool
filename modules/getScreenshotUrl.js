@@ -24,18 +24,18 @@ async function getScreenshotUrl(n){
     const screenshot_a = await p.$('.actualmediactn a');
     const screenshot_href = await p.evaluate(screenshot_a =>  screenshot_a.href, screenshot_a);
 
-    console.log(screenshot_href);
+    //console.log(screenshot_href);
 
     const gameName_el = await p.$('.screenshotAppName');
     const gameName = await p.evaluate(gameName_el =>  gameName_el.textContent, gameName_el);
 
-    console.log(gameName);
+    //console.log(gameName);
 
     let game_appid = "";
     const gameAppID_el = await p.$('body > div.responsive_page_frame.with_header > div.responsive_page_content > div.responsive_page_template_content > div.apphub_HomeHeaderContent > div.apphub_HeaderTop > div.apphub_OtherSiteInfo.responsive_hidden > a');
     if(gameAppID_el){
         game_appid = await p.evaluate(gameAppID_el =>  gameAppID_el.getAttribute('data-appid'), gameAppID_el);
-        console.log(game_appid);
+        //console.log(game_appid);
     }
 
     let screenshot_description = false;

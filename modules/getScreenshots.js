@@ -19,6 +19,7 @@ function downloadScreenshot(n){
     if(n === d.length){
         console.log('The program has finished the download.');
         return true;
+        process.exit(1);
     }
 
     console.log(`Downloading screenshot ${n + 1} of ${d.length}`);
