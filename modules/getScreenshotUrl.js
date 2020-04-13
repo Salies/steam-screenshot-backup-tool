@@ -7,7 +7,7 @@ async function writeScreenshotUrls(page){
         if(err) throw err;
     
         d = JSON.parse(data), p = page;
-        getScreenshotUrl(9);
+        getScreenshotUrl(0);
     });
 }
 

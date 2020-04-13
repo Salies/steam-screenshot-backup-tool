@@ -1,4 +1,4 @@
-const fs = require('fs'), path = require('path'), sanitize = require("sanitize-filename"), axios = require('axios').default;
+const fs = require('fs'), path = require('path'), sanitize = require("sanitize-filename"), axios = require('axios').default, setDescription = require('./setDescription');
 
 let d;
 
@@ -10,7 +10,7 @@ async function getScreenshots(){
 
         fs.mkdir("games", { recursive: true }, (err) => {
             if (err) throw err;
-            downloadScreenshot(0);
+            downloadScreenshot(9);
         });
     });
 }
@@ -44,6 +44,11 @@ function downloadScreenshot(n){
           return new Promise((resolve, reject) => {
             writer.on('finish', ()=>{
                 d[n] = {...d[n], downloaded:true};
+
+                //if the screenshot has a description, add it as an embed or .txt
+                if(d[n].description){
+                    setDescription(img_path, d[n].description);
+                }
 
                 fs.writeFile('data.json', JSON.stringify(d), () => {
                     downloadScreenshot(n + 1);
