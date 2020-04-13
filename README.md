@@ -1,2 +1,5 @@
 # steam-screenshot-backup-tool
-A backup tool for Steam screenshots. Written in Python for the sake of it (actually because I consider it a better environment for executables than Node.JS, which would be my other option).
+A backup tool for Steam screenshots.
+
+**Todo list:**
+* Name the files according to the date they were created (like Steam names it when the screenshots are created).
