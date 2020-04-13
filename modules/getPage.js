@@ -1,15 +1,14 @@
-const fs = require('fs');
+const fs = require('fs'), writeScreenshotUrls = require('./getScreenshotUrl');
 
-function filterResponse($){
-    console.log('filtrando...');
-}
+let nPages = 1, b = null;
 
-let nPages = 1;
-
-async function getPage(page, n, tries=1){
+async function getPage(browser, page, n, tries=1){
+    if(!b){
+        b = browser;
+    }
     //example: invalid page 
     //let p = `https://steamcommunity.com/id/sonicsalies/screenshots/?appid=123&sort=newestfirst&browsefilter=myfiles&view=grid`;
-    let p = `https://steamcommunity.com/id/sonicsalies/screenshots/?appid=0&p=${n}&sort=newestfirst&browsefilter=myfiles&view=grid`;
+    let p = `https://steamcommunity.com/id/sonicsalies/screenshots/?appid=0&p=${n}&sort=oldestfirst&browsefilter=myfiles&view=grid`;
     await page.goto(p);
 
     const notfound = await page.$('#NoItemsContainer');
@@ -17,7 +16,7 @@ async function getPage(page, n, tries=1){
     if(notfound){
         console.log(`No screenshots available in the page. This might be a glitch, retrying... (${tries})`);
 
-        if(tries === 5){
+        if(tries === 10){
             console.log('5 tries');
             return false;
         }
@@ -43,8 +42,6 @@ async function getPage(page, n, tries=1){
         return links;
     }, sel);
 
-    //console.log(elements.length);
-
     writeURL(elements);
 
     if(n < nPages){
@@ -53,7 +50,7 @@ async function getPage(page, n, tries=1){
 
     console.log('Finished getting pages.');
 
-    return true;
+    writeScreenshotUrls(b, page);
 }
 
 function writeURL(arr){

@@ -10,12 +10,17 @@ async function getScreenshots(){
 
         fs.mkdir("games", { recursive: true }, (err) => {
             if (err) throw err;
-            downloadScreenshot(9);
+            downloadScreenshot(0);
         });
     });
 }
 
 function downloadScreenshot(n){
+    if(n === d.length){
+        console.log('The program has finished the download.');
+        return true;
+    }
+
     console.log(`Downloading screenshot ${n + 1} of ${d.length}`);
 
     if(d[n].downloaded){

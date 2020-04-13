@@ -1,19 +1,19 @@
-const fs = require('fs');
+const fs = require('fs'), getScreenshots = require('./getScreenshots');
 
-let d, p;
+let d, p, b;
 
-async function writeScreenshotUrls(page){
+async function writeScreenshotUrls(browser, page){
     await fs.readFile('data.json', 'utf8', function readFileCallback(err, data){
         if(err) throw err;
     
-        d = JSON.parse(data), p = page;
+        d = JSON.parse(data), p = page, b = browser;
         getScreenshotUrl(0);
     });
 }
 
 async function getScreenshotUrl(n){
     if(d[n].url){
-        console.log(`Screenshot ${n + 1} of ${d.length} already downloaded.`);
+        console.log(`DATA FOR screenshot ${n + 1} of ${d.length} already downloaded.`);
         return getScreenshotUrl(n + 1);
     };
 
@@ -55,6 +55,10 @@ async function getScreenshotUrl(n){
         if(n < d.length - 1){
             return getScreenshotUrl(n + 1);
         }
+
+        b.close(); //no need to wait for this since it Puppeteer won't be used from this point on
+        console.log('Browser closed. Onto the downloads.');
+        getScreenshots();
     });
 }
 
