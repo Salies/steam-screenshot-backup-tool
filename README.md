@@ -2,7 +2,7 @@
 A backup tool for Steam screenshots.
 
 ## Usage
-Have **Node v10** or later installed. Using the latest !(https://nodejs.org/en/download/)[LTS version] is recommended.
+Have **Node v10** or later installed. Using the latest [LTS version](https://nodejs.org/en/download/) is recommended.
 ```bash
 git clone https://github.com/Salies/steam-screenshot-backup-tool # or download the zip
 cd steam-screenshot-backup-tool
