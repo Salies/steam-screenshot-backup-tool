@@ -26,8 +26,11 @@ async function getScreenshotUrl(n){
 
     //console.log(screenshot_href);
 
+    let gameName = "Unknown Game";
     const gameName_el = await p.$('.screenshotAppName');
-    const gameName = await p.evaluate(gameName_el =>  gameName_el.textContent, gameName_el);
+    if(gameName_el){
+        gameName = await p.evaluate(gameName_el =>  gameName_el.textContent, gameName_el);
+    }
 
     //console.log(gameName);
 
