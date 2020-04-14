@@ -10,5 +10,7 @@ npm install
 node app.js
 ```
 
+If the program ever crashes for some reason - it may happen, for instance, when the screenshot data is being fetched - just cancel the operation and start again. The tool is configured to always pick up where it left.
+
 **Todo list:**
 * Name the files according to the date they were created (like Steam names it when the screenshots are created).
